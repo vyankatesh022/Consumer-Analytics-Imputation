@@ -16,6 +16,16 @@ from missing_data_platform.exceptions import (
     PlatformError,
     StorageError,
 )
+from missing_data_platform.ingestion import (
+    ColumnDefinition,
+    CsvParser,
+    ExtraColumnsAction,
+    IngestionEngine,
+    IngestionLineage,
+    IngestionResult,
+    RawDataContract,
+    SchemaValidator,
+)
 from missing_data_platform.logging import configure_logging, get_logger
 
 __all__ = [
@@ -34,4 +44,12 @@ __all__ = [
     "ImputationError",
     "EvaluationError",
     "ModelTrainingError",
+    "RawDataContract",
+    "ColumnDefinition",
+    "CsvParser",
+    "SchemaValidator",
+    "ExtraColumnsAction",
+    "IngestionLineage",
+    "IngestionEngine",
+    "IngestionResult",
 ]
