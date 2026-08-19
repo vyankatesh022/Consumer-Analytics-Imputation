@@ -1,0 +1,14 @@
+# Development Environment Overrides
+environment: "development"
+debug: true
+logging:
+  level: "DEBUG"
+  format: "console"
+
+storage:
+  use_local_storage: true
+  local_path: "./data"
+
+execution:
+  sample_size_limit: 100000
+  enable_profiling: true

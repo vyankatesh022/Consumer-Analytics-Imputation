@@ -1,0 +1,15 @@
+# Production Environment Configuration
+environment: "production"
+debug: false
+logging:
+  level: "INFO"
+  format: "json"
+
+storage:
+  use_local_storage: false
+  s3_bucket: "missing-data-platform-production-lakehouse"
+  aws_region: "us-east-1"
+
+execution:
+  sample_size_limit: null
+  enable_profiling: false

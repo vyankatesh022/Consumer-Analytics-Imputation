@@ -1,0 +1,44 @@
+# ==============================================================================
+# Base Pipeline Configuration (Environment Agnostic Defaults)
+# ==============================================================================
+
+app:
+  name: "missing-data-platform"
+  version: "0.1.0"
+  random_seed: 42
+
+data:
+  target_column: "purchase_next_month"
+  id_column: "customer_id"
+  test_size: 0.20
+  validation_size: 0.10
+  demographic_columns:
+    - "age"
+    - "income"
+    - "region_code"
+    - "customer_segment"
+  behavioral_columns:
+    - "purchase_frequency"
+    - "average_purchase_value"
+    - "total_spend"
+    - "discount_usage"
+    - "website_visits"
+    - "campaign_exposure"
+
+imputation:
+  strategies:
+    - "median"
+    - "mode"
+    - "knn"
+    - "iterative"
+    - "random_forest"
+  knn_neighbors: 5
+  iterative_max_iter: 10
+  rf_n_estimators: 50
+
+decision_framework:
+  weights:
+    reconstruction_fidelity: 0.25
+    representation_stability: 0.35
+    downstream_ml_performance: 0.30
+    computational_cost: 0.10
