@@ -27,6 +27,17 @@ from missing_data_platform.ingestion import (
     SchemaValidator,
 )
 from missing_data_platform.logging import configure_logging, get_logger
+from missing_data_platform.quality import (
+    CheckDetail,
+    DataQualityConfig,
+    DataQualityEngine,
+    DistributionSummary,
+    DuplicateMetric,
+    MissingnessMetric,
+    QualityReport,
+    QualitySeverity,
+    QualityStatus,
+)
 
 __all__ = [
     "__version__",
@@ -52,4 +63,13 @@ __all__ = [
     "IngestionLineage",
     "IngestionEngine",
     "IngestionResult",
+    "QualityStatus",
+    "QualitySeverity",
+    "DataQualityConfig",
+    "CheckDetail",
+    "MissingnessMetric",
+    "DuplicateMetric",
+    "DistributionSummary",
+    "QualityReport",
+    "DataQualityEngine",
 ]
