@@ -16,6 +16,15 @@ from missing_data_platform.exceptions import (
     PlatformError,
     StorageError,
 )
+from missing_data_platform.imputation import (
+    BaseImputer,
+    BaselineImputationConfig,
+    BaselineImputationEngine,
+    BaselineImputer,
+    BaselineStrategy,
+    FeatureImputationMetric,
+    ImputationResult,
+)
 from missing_data_platform.ingestion import (
     ColumnDefinition,
     CsvParser,
@@ -108,4 +117,11 @@ __all__ = [
     "FeatureMaskingSummary",
     "MaskingExperimentResult",
     "MaskingEngine",
+    "BaselineStrategy",
+    "BaselineImputationConfig",
+    "BaseImputer",
+    "BaselineImputer",
+    "FeatureImputationMetric",
+    "ImputationResult",
+    "BaselineImputationEngine",
 ]
