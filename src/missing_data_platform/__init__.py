@@ -27,6 +27,14 @@ from missing_data_platform.ingestion import (
     SchemaValidator,
 )
 from missing_data_platform.logging import configure_logging, get_logger
+from missing_data_platform.masking import (
+    FeatureMaskingSummary,
+    GroundTruthStore,
+    MaskingConfig,
+    MaskingEngine,
+    MaskingExperimentResult,
+    MaskingStrategy,
+)
 from missing_data_platform.missingness import (
     FeatureMissingnessProfile,
     GroupDisparitySummary,
@@ -94,4 +102,10 @@ __all__ = [
     "MCARDiagnosticReport",
     "MARDiagnosticReport",
     "MissingnessAnalysisReport",
+    "MaskingStrategy",
+    "MaskingConfig",
+    "GroundTruthStore",
+    "FeatureMaskingSummary",
+    "MaskingExperimentResult",
+    "MaskingEngine",
 ]
