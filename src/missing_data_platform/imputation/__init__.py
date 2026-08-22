@@ -1,4 +1,4 @@
-"""Imputation Methods package (Baseline and KNN Imputation)."""
+"""Imputation Methods package (Baseline, KNN, and Iterative Multivariate Imputation)."""
 
 from missing_data_platform.imputation.base import BaseImputer
 from missing_data_platform.imputation.baseline import BaselineImputer
@@ -7,6 +7,12 @@ from missing_data_platform.imputation.config import (
     BaselineStrategy,
 )
 from missing_data_platform.imputation.engine import BaselineImputationEngine
+from missing_data_platform.imputation.iterative import (
+    ImputationOrder,
+    InitialStrategy,
+    IterativeImputationConfig,
+    IterativeImputerModel,
+)
 from missing_data_platform.imputation.knn import (
     KNNImputationConfig,
     KNNImputerModel,
@@ -30,4 +36,8 @@ __all__ = [
     "KNNImputerModel",
     "KNNWeighting",
     "ScalingStrategy",
+    "InitialStrategy",
+    "ImputationOrder",
+    "IterativeImputationConfig",
+    "IterativeImputerModel",
 ]

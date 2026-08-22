@@ -178,3 +178,87 @@ class BaselineImputationEngine:
         )
 
         return result
+
+    def impute_iterative_dataset(
+        self,
+        df: pd.DataFrame,
+        experiment_id: str = "iterative_impute_exp",
+        max_iter: int = 10,
+        tol: float = 1e-3,
+        random_seed: int = 42,
+        target_features: list[str] | None = None,
+        train_df: pd.DataFrame | None = None,
+    ) -> ImputationResult:
+        """Fit iterative multivariate chained models and impute missing numerical features.
+
+        Args:
+            df: Target dataset containing missing values to impute.
+            experiment_id: Unique experiment tracking identifier.
+            max_iter: Maximum number of round-robin imputation cycles (>= 1).
+            tol: Tolerance for stopping criterion.
+            random_seed: Deterministic random state for Bayesian Ridge regressions.
+            target_features: Optional explicit list of features to impute.
+            train_df: Optional reference/training partition from which to train chained models.
+
+        Raises:
+            DataQualityError: If target DataFrame is empty.
+        """
+        if df.empty:
+            raise DataQualityError(
+                "Cannot perform iterative imputation on an empty DataFrame.",
+                context={"experiment_id": experiment_id},
+            )
+
+        from missing_data_platform.imputation.iterative import (
+            ImputationOrder,
+            InitialStrategy,
+            IterativeImputationConfig,
+            IterativeImputerModel,
+        )
+
+        logger.info(
+            "Starting iterative multivariate imputation",
+            experiment_id=experiment_id,
+            max_iter=max_iter,
+            tol=tol,
+            random_seed=random_seed,
+            total_records=len(df),
+        )
+
+        iter_config = IterativeImputationConfig(
+            max_iter=max_iter,
+            tol=tol,
+            initial_strategy=InitialStrategy.MEAN,
+            imputation_order=ImputationOrder.ASCENDING,
+            random_seed=random_seed,
+            target_features=target_features,
+            protected_features=[self.contract.id_column, self.contract.target_column],
+        )
+
+        imputer = IterativeImputerModel(config=iter_config, contract=self.contract)
+        fit_source = train_df if train_df is not None else df
+        imputer.fit(fit_source)
+
+        imputed_df, metrics = imputer.transform_with_metrics(df)
+        total_cells_imputed = sum(m.imputed_count for m in metrics)
+
+        result = ImputationResult(
+            imputed_dataset=imputed_df,
+            experiment_id=experiment_id,
+            numeric_strategy=BaselineStrategy.CONSTANT,
+            categorical_strategy=BaselineStrategy.MODE,
+            total_records=len(df),
+            total_cells_imputed=total_cells_imputed,
+            feature_metrics=metrics,
+            imputation_parameters=imputer.imputation_parameters,
+        )
+
+        logger.info(
+            "Iterative imputation completed",
+            experiment_id=experiment_id,
+            total_cells_imputed=total_cells_imputed,
+            features_imputed_count=len(metrics),
+            converged=imputer.imputation_parameters.get("converged"),
+        )
+
+        return result
