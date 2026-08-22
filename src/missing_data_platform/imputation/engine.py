@@ -100,3 +100,81 @@ class BaselineImputationEngine:
         )
 
         return result
+
+    def impute_knn_dataset(
+        self,
+        df: pd.DataFrame,
+        experiment_id: str = "knn_impute_exp",
+        n_neighbors: int = 5,
+        scaling_strategy: str = "standard",
+        target_features: list[str] | None = None,
+        train_df: pd.DataFrame | None = None,
+    ) -> ImputationResult:
+        """Fit KNN neighbor representation and impute numeric features.
+
+        Args:
+            df: Target dataset containing missing values to impute.
+            experiment_id: Unique experiment tracking identifier.
+            n_neighbors: Number of nearest neighbors (k >= 1).
+            scaling_strategy: 'standard', 'minmax', or 'none'.
+            target_features: Optional explicit list of features to impute.
+            train_df: Optional reference/training partition from which to compute neighbor space.
+
+        Raises:
+            DataQualityError: If target DataFrame is empty.
+        """
+        if df.empty:
+            raise DataQualityError(
+                "Cannot perform KNN imputation on an empty DataFrame.",
+                context={"experiment_id": experiment_id},
+            )
+
+        from missing_data_platform.imputation.knn import (
+            KNNImputationConfig,
+            KNNImputerModel,
+            KNNWeighting,
+            ScalingStrategy,
+        )
+
+        logger.info(
+            "Starting KNN imputation",
+            experiment_id=experiment_id,
+            n_neighbors=n_neighbors,
+            scaling_strategy=scaling_strategy,
+            total_records=len(df),
+        )
+
+        knn_config = KNNImputationConfig(
+            n_neighbors=n_neighbors,
+            weights=KNNWeighting.UNIFORM,
+            scaling_strategy=ScalingStrategy(scaling_strategy),
+            target_features=target_features,
+            protected_features=[self.contract.id_column, self.contract.target_column],
+        )
+
+        imputer = KNNImputerModel(config=knn_config, contract=self.contract)
+        fit_source = train_df if train_df is not None else df
+        imputer.fit(fit_source)
+
+        imputed_df, metrics = imputer.transform_with_metrics(df)
+        total_cells_imputed = sum(m.imputed_count for m in metrics)
+
+        result = ImputationResult(
+            imputed_dataset=imputed_df,
+            experiment_id=experiment_id,
+            numeric_strategy=BaselineStrategy.CONSTANT,
+            categorical_strategy=BaselineStrategy.MODE,
+            total_records=len(df),
+            total_cells_imputed=total_cells_imputed,
+            feature_metrics=metrics,
+            imputation_parameters=imputer.imputation_parameters,
+        )
+
+        logger.info(
+            "KNN imputation completed",
+            experiment_id=experiment_id,
+            total_cells_imputed=total_cells_imputed,
+            features_imputed_count=len(metrics),
+        )
+
+        return result

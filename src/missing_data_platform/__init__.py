@@ -24,6 +24,10 @@ from missing_data_platform.imputation import (
     BaselineStrategy,
     FeatureImputationMetric,
     ImputationResult,
+    KNNImputationConfig,
+    KNNImputerModel,
+    KNNWeighting,
+    ScalingStrategy,
 )
 from missing_data_platform.ingestion import (
     ColumnDefinition,
@@ -124,4 +128,8 @@ __all__ = [
     "FeatureImputationMetric",
     "ImputationResult",
     "BaselineImputationEngine",
+    "KNNImputationConfig",
+    "KNNImputerModel",
+    "KNNWeighting",
+    "ScalingStrategy",
 ]
