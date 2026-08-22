@@ -262,3 +262,94 @@ class BaselineImputationEngine:
         )
 
         return result
+
+    def impute_rf_dataset(
+        self,
+        df: pd.DataFrame,
+        experiment_id: str = "rf_impute_exp",
+        n_estimators: int = 100,
+        max_depth: int | None = 15,
+        min_samples_leaf: int = 1,
+        max_features: float | int | str | None = "sqrt",
+        random_seed: int = 42,
+        n_jobs: int = 1,
+        target_features: list[str] | None = None,
+        train_df: pd.DataFrame | None = None,
+    ) -> ImputationResult:
+        """Fit Random Forest regression models and impute missing numerical features.
+
+        Args:
+            df: Target dataset containing missing values to impute.
+            experiment_id: Unique experiment tracking identifier.
+            n_estimators: Number of trees in the forest (1 <= n <= 500).
+            max_depth: Maximum depth of the trees (1 <= d <= 50 or None).
+            min_samples_leaf: Minimum samples per leaf (>= 1).
+            max_features: Number of features to consider when looking for best split.
+            random_seed: Deterministic random state for Random Forest models.
+            n_jobs: Number of parallel jobs for tree fitting (>= 1 or -1).
+            target_features: Optional explicit list of features to impute.
+            train_df: Optional reference/training partition from which to train models.
+
+        Raises:
+            DataQualityError: If target DataFrame is empty.
+        """
+        if df.empty:
+            raise DataQualityError(
+                "Cannot perform Random Forest imputation on an empty DataFrame.",
+                context={"experiment_id": experiment_id},
+            )
+
+        from missing_data_platform.imputation.rf import (
+            RandomForestImputationConfig,
+            RandomForestImputerModel,
+        )
+
+        logger.info(
+            "Starting Random Forest imputation",
+            experiment_id=experiment_id,
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_leaf=min_samples_leaf,
+            random_seed=random_seed,
+            n_jobs=n_jobs,
+            total_records=len(df),
+        )
+
+        rf_config = RandomForestImputationConfig(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_leaf=min_samples_leaf,
+            max_features=max_features,
+            random_seed=random_seed,
+            n_jobs=n_jobs,
+            target_features=target_features,
+            protected_features=[self.contract.id_column, self.contract.target_column],
+        )
+
+        imputer = RandomForestImputerModel(config=rf_config, contract=self.contract)
+        fit_source = train_df if train_df is not None else df
+        imputer.fit(fit_source)
+
+        imputed_df, metrics = imputer.transform_with_metrics(df)
+        total_cells_imputed = sum(m.imputed_count for m in metrics)
+
+        result = ImputationResult(
+            imputed_dataset=imputed_df,
+            experiment_id=experiment_id,
+            numeric_strategy=BaselineStrategy.CONSTANT,
+            categorical_strategy=BaselineStrategy.MODE,
+            total_records=len(df),
+            total_cells_imputed=total_cells_imputed,
+            feature_metrics=metrics,
+            imputation_parameters=imputer.imputation_parameters,
+        )
+
+        logger.info(
+            "Random Forest imputation completed",
+            experiment_id=experiment_id,
+            total_cells_imputed=total_cells_imputed,
+            features_imputed_count=len(metrics),
+            trained_models_count=len(imputer.imputation_parameters.get("trained_models", [])),
+        )
+
+        return result

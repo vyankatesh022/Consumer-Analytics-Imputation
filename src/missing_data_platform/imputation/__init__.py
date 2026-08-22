@@ -1,4 +1,4 @@
-"""Imputation Methods package (Baseline, KNN, and Iterative Multivariate Imputation)."""
+"""Imputation Methods package (Baseline, KNN, Iterative, and Random Forest Imputation)."""
 
 from missing_data_platform.imputation.base import BaseImputer
 from missing_data_platform.imputation.baseline import BaselineImputer
@@ -23,6 +23,10 @@ from missing_data_platform.imputation.report import (
     FeatureImputationMetric,
     ImputationResult,
 )
+from missing_data_platform.imputation.rf import (
+    RandomForestImputationConfig,
+    RandomForestImputerModel,
+)
 
 __all__ = [
     "BaselineStrategy",
@@ -40,4 +44,6 @@ __all__ = [
     "ImputationOrder",
     "IterativeImputationConfig",
     "IterativeImputerModel",
+    "RandomForestImputationConfig",
+    "RandomForestImputerModel",
 ]

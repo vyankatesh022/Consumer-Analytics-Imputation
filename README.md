@@ -44,8 +44,6 @@ FastAPI Low-Latency Inference & Observability
 ├── Makefile                  # Developer CLI commands (test, lint, format, type-check)
 ├── pyproject.toml            # Build system, dependencies, and tooling configuration
 ├── README.md                 # Project overview and quickstart guide
-├── ENGINEERING_RULES.md      # Standards, clean architecture, typing, error handling rules
-├── CONTRIBUTING.md           # Git workflow, branch naming, Conventional Commits guide
 ├── config/                   # Base, development, and production YAML configurations
 ├── docs/                     # Architecture, deployment, and developer documentation
 ├── infrastructure/           # Dockerfiles, docker-compose, and Terraform IaC
